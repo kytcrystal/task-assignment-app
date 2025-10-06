@@ -24,7 +24,7 @@ model Skill {
 model Task {
   id            Int               @id @default(autoincrement())
   title         String          
-  status        TaskStatus        
+  status        TaskStatus?        
   assignedToId  Int?
   assignedTo    Developer?        @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
   skills        TaskSkill[]            

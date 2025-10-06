@@ -21,7 +21,7 @@ CREATE TABLE "Skill" (
 CREATE TABLE "Task" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "status" "TaskStatus" NOT NULL,
+    "status" "TaskStatus",
     "assignedToId" INTEGER,
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
@@ -42,6 +42,9 @@ CREATE TABLE "TaskSkill" (
 
     CONSTRAINT "TaskSkill_pkey" PRIMARY KEY ("taskId","skillId")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Developer_name_key" ON "Developer"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Skill_name_key" ON "Skill"("name");
