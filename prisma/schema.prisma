@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Developer {
+  id       Int               @id @default(autoincrement())
+  name     String            @unique
+  tasks    Task[]            @relation("AssignedTasks")
+  skills   DeveloperSkill[]
+}
+
+model Skill {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  developers  DeveloperSkill[]
+  tasks       TaskSkill[]
+}
+
+model Task {
+  id            Int               @id @default(autoincrement())
+  title         String          
+  status        TaskStatus        
+  assignedToId  Int?
+  assignedTo    Developer?        @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+  skills        TaskSkill[]            
+}
+
+model DeveloperSkill {
+  developerId Int
+  skillId     Int
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([developerId, skillId])
+}
+
+model TaskSkill {
+  taskId  Int
+  skillId Int
+  task    Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  skill   Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, skillId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  CANCELLED
+}
