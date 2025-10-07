@@ -41,12 +41,32 @@ export async function PATCH(
       }
     }
 
-    const updated = await prisma.task.update({
+    const updatedTask = await prisma.task.update({
       where: { id: taskId },
-      data: { status, assignedToId },
+      data: {
+        ...(status && { status }),
+        ...(assignedToId && { assignedToId })
+      },
+      include: {  
+        assignedTo: {
+          include: {
+            skills: {
+              include: {
+                skill: true
+              }
+            }
+          }
+        },
+        skills: {
+          include: {
+            skill: true
+          }
+        }
+      }
     });
 
-    return NextResponse.json(updated, { status: 200 });
+
+    return NextResponse.json(updatedTask, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
