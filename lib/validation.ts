@@ -73,14 +73,14 @@ export function canMarkTaskAsDoneRecursive(
     if (!subtaskCheck.canChange) {
       return {
         canChange: false,
-        reason: `Subtask "${subtask.title}" or its subtasks are not completed`
+        reason: `Subtask ${subtask.id} or its subtasks are not completed`
       };
     }
 
     if (subtask.status !== 'DONE') {
       return {
         canChange: false,
-        reason: `Subtask "${subtask.title}" is not marked as DONE`
+        reason: `Subtask ${subtask.id} is not done`
       };
     }
   }

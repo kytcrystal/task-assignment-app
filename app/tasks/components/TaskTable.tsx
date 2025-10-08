@@ -1,64 +1,86 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import TaskRow from './TaskRow';
-import { TaskWithRelations, DeveloperWithSkills } from '@/app/types/prisma-helpers';
+import { useState } from "react";
+import TaskRow from "./TaskRow";
+import {
+  TaskWithRelations,
+  DeveloperWithSkills,
+} from "@/app/types/prisma-helpers";
 
 type TaskTableProps = {
   tasks: TaskWithRelations[];
   developers: DeveloperWithSkills[];
 };
 
-export default function TaskTable({ tasks: initialTasks, developers }: TaskTableProps) {
+export default function TaskTable({
+  tasks: initialTasks,
+  developers,
+}: TaskTableProps) {
   const [tasks, setTasks] = useState(initialTasks);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const getEligibleDevelopers = (task: TaskWithRelations) => {
-    const taskSkillIds = task.skills.map(ts => ts.skill.id);
-    return developers.filter(dev => {
-      const devSkillIds = dev.skills.map(ds => ds.skill.id);
-      return taskSkillIds.every(id => devSkillIds.includes(id));
+    const taskSkillIds = task.skills.map((ts) => ts.skill.id);
+    return developers.filter((dev) => {
+      const devSkillIds = dev.skills.map((ds) => ds.skill.id);
+      return taskSkillIds.every((id) => devSkillIds.includes(id));
     });
   };
 
   const updateStatus = async (taskId: number, newStatus: string) => {
     try {
       const res = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
       });
 
+      const data = await res.json();
+      if (!res.ok && data.error) {
+        setErrorMsg(data.error);
+        return;
+      }
       if (res.ok) {
-        const updatedTask = await res.json();
-        setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+        setTasks(tasks.map((t) => (t.id === taskId ? data : t)));
       }
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
     }
   };
 
   const assignDeveloper = async (taskId: number, developerId: number) => {
     try {
       const res = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assignedToId: developerId })
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedToId: developerId }),
       });
 
       if (res.ok) {
         const updatedTask = await res.json();
-        setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+        setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
       } else {
         const error = await res.json();
-        alert(error.error || 'Failed to assign developer');
+        setErrorMsg(error.error || "Failed to assign developer");
       }
     } catch (error) {
-      console.error('Error assigning developer:', error);
-      alert('Error assigning developer');
+      console.error("Error assigning developer:", error);
+      setErrorMsg("Error assigning developer");
     }
   };
   return (
     <div className="overflow-x-auto">
+      {errorMsg && (
+        <div role="alert" className="alert alert-error alert-soft mb-4">
+          <span>{errorMsg}</span>
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={() => setErrorMsg("")}
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <table className="table table-zebra">
         <thead>
           <tr>
@@ -78,7 +100,7 @@ export default function TaskTable({ tasks: initialTasks, developers }: TaskTable
               </td>
             </tr>
           ) : (
-            tasks.map(task => (
+            tasks.map((task) => (
               <TaskRow
                 key={task.id}
                 task={task}

@@ -6,15 +6,7 @@ import {
   TaskWithRelations,
   DeveloperWithSkills,
 } from "@/app/types/prisma-helpers";
-// Recursively ensure every task and subtask has a subtasks property
-function hydrateTask(task: any): TaskWithRelations {
-  return {
-    ...task,
-    subtasks: Array.isArray(task.subtasks)
-      ? task.subtasks.map(hydrateTask)
-      : [],
-  };
-}
+
 
 type TaskRowProps = {
   task: TaskWithRelations;
@@ -31,12 +23,11 @@ export default function TaskRow({
   onDeveloperAssign,
   indentLevel = 0,
 }: TaskRowProps) {
-  const [showSubtasks, setShowSubtasks] = useState(false);
   return (
     <>
       <tr>
         <td>{task.id}</td>
-        <td className="font-semibold ml-2">{task.title}</td>
+        <td className="font-semibold ml-2 w-1/2">{task.title}</td>
         <td>
           <TaskSkill skills={task.skills} />
         </td>
