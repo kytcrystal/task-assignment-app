@@ -18,6 +18,16 @@ async function getTasks() {
         include: {
           skill: true
         }
+      },
+      subtasks: {
+        include: {
+          assignedTo: {
+            include: {
+              skills: { include: { skill: true } }
+            }
+          },
+          skills: { include: { skill: true } }
+        }
       }
     },
     orderBy: {

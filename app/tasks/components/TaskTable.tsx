@@ -62,11 +62,12 @@ export default function TaskTable({ tasks: initialTasks, developers }: TaskTable
       <table className="table table-zebra">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Title</th>
-            <th>Skills Required</th>
+            <th>Skills</th>
             <th>Status</th>
-            <th>Assigned To</th>
-            <th>Actions</th>
+            <th>Assignee</th>
+            <th>Parent Task</th>
           </tr>
         </thead>
         <tbody>

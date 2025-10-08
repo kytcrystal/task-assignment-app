@@ -17,6 +17,24 @@ export type TaskWithRelations = Prisma.TaskGetPayload<{
         skill: true;
       };
     };
+    subtasks: {
+      include: {
+        assignedTo: {
+          include: {
+            skills: {
+              include: {
+                skill: true;
+              };
+            };
+          };
+        };
+        skills: {
+          include: {
+            skill: true;
+          };
+        };
+      };
+    };
   };
 }>;
 
