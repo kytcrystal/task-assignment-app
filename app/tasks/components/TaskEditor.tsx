@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SkillSelect from "./SkillSelect";
 
 type TaskEditorProps = {
@@ -18,10 +18,18 @@ export default function TaskEditor({
       title: "",
       status: "TODO",
       assignedToId: null,
-      skills: [],
+      skillIds: [],
       subtasks: [],
     }
   );
+  const [availableSkills, setAvailableSkills] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/skills")
+      .then((res) => res.json())
+      .then((data) => setAvailableSkills(data))
+      .catch(console.error);
+  }, []);
   const [subtasks, setSubtasks] = useState<any[]>(value.subtasks || []);
 
   const handleAddSubtask = () => {
@@ -69,8 +77,9 @@ export default function TaskEditor({
       </div>
 
       <SkillSelect
-        skills={task.skills ?? []}
-        setSkills={(skills: string[]) => update({ skills })}
+        availableSkills={availableSkills}
+        skillIds={task.skillIds ?? []}
+        setSkillIds={(skillIds: number[]) => update({ skillIds })}
       />
       <div className="flex justify-end mt-2">
         <button type="button" className="btn" onClick={handleAddSubtask}>

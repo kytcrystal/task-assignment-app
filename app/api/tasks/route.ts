@@ -1,4 +1,4 @@
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { detectSkillsFromTitle } from "@/lib/llm";
 
@@ -59,10 +59,10 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { title, skillIds, parentId } = body;
-
+    
     let finalSkillIds = skillIds;
     if (!skillIds || skillIds.length === 0) {
-      console.log(`No skills provided, using LLM to detect for: "${title}"`);
+      console.log(`No skills provided. Using LLM to detect for: "${title}"`);
       finalSkillIds = await detectSkillsFromTitle(title);
       console.log(`LLM detected skill IDs: ${finalSkillIds}`);
     }
