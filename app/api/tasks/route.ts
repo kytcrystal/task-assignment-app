@@ -1,5 +1,6 @@
 import { prisma } from "../../../lib/prisma";
 import { NextResponse } from "next/server";
+import { detectSkillsFromTitle } from "@/lib/llm";
 
 export async function GET() {
   try {
@@ -19,14 +20,12 @@ export async function GET() {
   }
 }
 
-async function createTaskRecursive(data: any, parentId: number | null = null) {
-  const {
-    title,
-    status = "TODO",
-    skills = [],
-    subtasks = [],
-    assignedToId = null,
-  } = data;
+async function createTaskRecursive(
+  data: any,
+  skillIds: number[],
+  parentId: number | null = null
+) {
+  const { title, status = "TODO", subtasks = [], assignedToId = null } = data;
   // Create the main task
   const task = await prisma.task.create({
     data: {
@@ -38,20 +37,19 @@ async function createTaskRecursive(data: any, parentId: number | null = null) {
   });
 
   // Link skills
-  for (const s of skills) {
-    const skill = await prisma.skill.upsert({
-      where: { name: s },
-      update: {},
-      create: { name: s },
-    });
+  for (const skillId of skillIds) {
     await prisma.taskSkill.create({
-      data: { taskId: task.id, skillId: skill.id },
+      data: { taskId: task.id, skillId },
     });
   }
 
   // Recursively create subtasks
   for (const subtask of subtasks) {
-    await createTaskRecursive(subtask, task.id);
+    let subtaskSkillIds = subtask.skillIds;
+    if (!subtaskSkillIds || subtaskSkillIds.length === 0) {
+      subtaskSkillIds = await detectSkillsFromTitle(subtask.title);
+    }
+    await createTaskRecursive(subtask, subtaskSkillIds, task.id);
   }
 
   return task;
@@ -60,7 +58,16 @@ async function createTaskRecursive(data: any, parentId: number | null = null) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const mainTask = await createTaskRecursive(body);
+    const { title, skillIds, parentId } = body;
+
+    let finalSkillIds = skillIds;
+    if (!skillIds || skillIds.length === 0) {
+      console.log(`No skills provided, using LLM to detect for: "${title}"`);
+      finalSkillIds = await detectSkillsFromTitle(title);
+      console.log(`LLM detected skill IDs: ${finalSkillIds}`);
+    }
+
+    const mainTask = await createTaskRecursive(body, finalSkillIds);
 
     const created = await prisma.task.findUnique({
       where: { id: mainTask.id },
