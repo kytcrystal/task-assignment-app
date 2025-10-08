@@ -48,7 +48,6 @@ export default function TaskTable({ tasks: initialTasks, developers }: TaskTable
       if (res.ok) {
         const updatedTask = await res.json();
         setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
-        alert('Developer assigned successfully!');
       } else {
         const error = await res.json();
         alert(error.error || 'Failed to assign developer');
