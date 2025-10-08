@@ -32,24 +32,24 @@ export default function TaskEditor({
     const updated = subtasks.slice();
     updated.splice(idx, 1);
     setSubtasks(updated);
-    onChange({ task, subtasks: updated });
+    onChange({ ...task, subtasks: updated });
   };
 
   const handleSubtaskChange = (idx: number, subtask: any) => {
     const updated = subtasks.slice();
     updated[idx] = subtask;
     setSubtasks(updated);
-    onChange({ task, subtasks: updated });
+    onChange({ ...task, subtasks: updated });
   };
 
   const update = (updates: any) => {
     const newTask = { ...task, ...updates };
     setTask(newTask);
-    onChange?.(newTask);
+    onChange({ ...newTask, subtasks });
   };
 
   React.useEffect(() => {
-    onChange({ task, subtasks });
+    onChange({ ...task, subtasks });
   }, [task, subtasks]);
 
   return (
@@ -73,7 +73,7 @@ export default function TaskEditor({
         setSkills={(skills: string[]) => update({ skills })}
       />
       <div className="flex justify-end mt-2">
-        <button className="btn" onClick={handleAddSubtask}>
+        <button type="button" className="btn" onClick={handleAddSubtask}>
           Add Subtask
         </button>
       </div>
