@@ -19,10 +19,12 @@ export async function detectSkillsFromTitle(title: string): Promise<number[]> {
 Task: "${title}"
 
 Available Skills:
-${skillNames}
+- Frontend: If the task involves user interface, visual design, or client-side work
+- Backend: If the task involves server logic, databases, APIs, or data processing
 
 Instructions:
-- Analyze what technical skills are needed for this task`;
+- Analyze what technical skills are needed for this task
+- Only choose 'Both' if the task clearly requires significant work in both areas`;
 
     const ai = new GoogleGenAI({});
     const response = await ai.models.generateContent({
@@ -32,7 +34,7 @@ Instructions:
       responseMimeType: "text/x.enum",
       responseSchema: {
         type: Type.STRING,
-        enum: ["Frontend", "Backend", "Both"],
+        enum: ["Both", "Frontend", "Backend"],
       },
     },
     });
