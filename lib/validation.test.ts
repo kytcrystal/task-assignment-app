@@ -183,3 +183,79 @@ describe("canMarkTaskAsDone", () => {
     });
   });
 });
+
+describe('canMarkTaskAsDoneRecursive', () => {
+  it('should allow DONE if no subtasks', () => {
+    const task = { id: 1, title: 'Solo', status: TaskStatus.TODO, assignedToId: null, parentId: null };
+    expect(canMarkTaskAsDoneRecursive(task)).toEqual({ canChange: true });
+  });
+
+  it('should allow DONE if all nested subtasks are DONE', () => {
+    const task = {
+      id: 2,
+      title: 'Parent',
+      status: TaskStatus.DONE,
+      assignedToId: null,
+      parentId: null,
+      subtasks: [
+        {
+          id: 3,
+          title: 'Sub1',
+          status: TaskStatus.DONE,
+          assignedToId: null,
+          parentId: null,
+          subtasks: [
+            { id: 4, title: 'SubSub1', status: TaskStatus.DONE, assignedToId: null, parentId: null }
+          ]
+        },
+        { id: 5, title: 'Sub2', status: TaskStatus.DONE, assignedToId: null, parentId: null }
+      ]
+    };
+    expect(canMarkTaskAsDoneRecursive(task)).toEqual({ canChange: true });
+  });
+
+  it('should not allow DONE if any nested subtask is not DONE', () => {
+    const task = {
+      id: 6,
+      title: 'Parent',
+      status: TaskStatus.DONE,
+      assignedToId: null,
+      parentId: null,
+      subtasks: [
+        {
+          id: 7,
+          title: 'Sub1',
+          status: TaskStatus.DONE,
+          assignedToId: null,
+          parentId: null,
+          subtasks: [
+            { id: 8, title: 'SubSub1', status: TaskStatus.TODO, assignedToId: null, parentId: null }
+          ]
+        },
+        { id: 9, title: 'Sub2', status: TaskStatus.DONE, assignedToId: null, parentId: null }
+      ]
+    };
+    expect(canMarkTaskAsDoneRecursive(task)).toEqual({
+      canChange: false,
+      reason: 'Subtask 7 or its subtasks are not completed'
+    });
+  });
+
+  it('should not allow DONE if direct subtask is not DONE', () => {
+    const task = {
+      id: 10,
+      title: 'Parent',
+      status: TaskStatus.DONE,
+      assignedToId: null,
+      parentId: null,
+      subtasks: [
+        { id: 11, title: 'Sub1', status: TaskStatus.TODO, assignedToId: null, parentId: null },
+        { id: 12, title: 'Sub2', status: TaskStatus.DONE, assignedToId: null, parentId: null }
+      ]
+    };
+    expect(canMarkTaskAsDoneRecursive(task)).toEqual({
+      canChange: false,
+      reason: 'Subtask 11 is not done'
+    });
+  });
+});
