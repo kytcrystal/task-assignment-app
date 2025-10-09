@@ -1,7 +1,7 @@
 import { prisma } from "../../../lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const developers = await prisma.developer.findMany({
       include: { skills: { include: { skill: true } } },
@@ -9,6 +9,9 @@ export async function GET() {
     return NextResponse.json(developers, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to fetch developers" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch developers" },
+      { status: 500 }
+    );
   }
 }

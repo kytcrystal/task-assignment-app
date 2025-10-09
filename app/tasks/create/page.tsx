@@ -1,22 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import TaskForm from "../components/TaskForm";
+import { EditableTask } from "@/app/types";
 
 export default function CreateTaskPage() {
   const router = useRouter();
   const [developers, setDevelopers] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    fetch("/api/developers")
-      .then((res) => res.json())
-      .then((data) => setDevelopers(data))
-      .catch(console.error);
-  }, []);
-
-  const handleSubmit = async (payload: any) => {
+  const handleSubmit = async (payload: EditableTask) => {
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
@@ -45,7 +39,7 @@ export default function CreateTaskPage() {
         </div>
       )}
       <h1 className="text-3xl font-bold mb-6">Create Task</h1>
-      <TaskForm developers={developers} onSubmit={handleSubmit} />
+      <TaskForm onSubmit={handleSubmit} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
-import Link from 'next/link';
+
 import { prisma } from '@/lib/prisma';
 import TaskTable from './components/TaskTable';
+
+export const dynamic = 'force-dynamic';
 
 async function getTasks() {
   const tasks = await prisma.task.findMany({

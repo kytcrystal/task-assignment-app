@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Task } from '@prisma/client';
 
 type DeveloperWithSkills = {

@@ -1,24 +1,29 @@
+import { EditableTask } from "@/app/types";
 import TaskEditor from "./TaskEditor";
 import { useState } from "react";
 
-export default function TaskForm({ developers, onSubmit }: any) {
-  const [task, setTask] = useState({
+type TaskFormProps = {
+  onSubmit: (task: EditableTask) => void;
+};
+
+export default function TaskForm({ onSubmit }: TaskFormProps) {
+  const [task, setTask] = useState<EditableTask>({
     title: "",
     status: "TODO",
     assignedToId: null,
-    skills: [],
+    skillIds: [],
     subtasks: [],
   });
-  const handleChange = (updated: any) => setTask(updated);
+  const handleChange = (updated: EditableTask) => setTask(updated);
   const [errorMsg, setErrorMsg] = useState("");
 
-  function allTitlesFilled(task: { title: string; subtasks?: any[] }) {
-  if (!task.title || task.title.trim() === "") return false;
-  if (task.subtasks && task.subtasks.length > 0) {
-    return task.subtasks.every(allTitlesFilled);
+  function allTitlesFilled(task: { title: string; subtasks?: EditableTask[] }) {
+    if (!task.title || task.title.trim() === "") return false;
+    if (task.subtasks && task.subtasks.length > 0) {
+      return task.subtasks.every(allTitlesFilled);
+    }
+    return true;
   }
-  return true;
-}
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

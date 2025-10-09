@@ -1,4 +1,3 @@
-import { useState } from "react";
 import TaskSkill from "./TaskSkill";
 import StatusSelect from "./StatusSelect";
 import DeveloperSelect from "./DeveloperSelect";
@@ -21,7 +20,6 @@ export default function TaskRow({
   eligibleDevelopers,
   onStatusChange,
   onDeveloperAssign,
-  indentLevel = 0,
 }: TaskRowProps) {
   return (
     <>

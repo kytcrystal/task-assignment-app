@@ -1,27 +1,26 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import SkillSelect from "./SkillSelect";
+import { EditableTask } from "@/app/types";
 
 type TaskEditorProps = {
   numbering: string;
-  onChange: (task: any) => void;
-  value?: any;
+  onChange: (task: EditableTask) => void;
+  value?: EditableTask;
 };
 
 export default function TaskEditor({
   numbering,
   onChange,
-  value = {},
+  value = {
+    title: "",
+    status: "TODO",
+    assignedToId: null,
+    skillIds: [],
+    subtasks: [],
+  },
 }: TaskEditorProps) {
-  const [task, setTask] = useState(
-    value || {
-      title: "",
-      status: "TODO",
-      assignedToId: null,
-      skillIds: [],
-      subtasks: [],
-    }
-  );
+  const [task, setTask] = useState(value);
   const [availableSkills, setAvailableSkills] = useState([]);
 
   useEffect(() => {
@@ -30,10 +29,21 @@ export default function TaskEditor({
       .then((data) => setAvailableSkills(data))
       .catch(console.error);
   }, []);
-  const [subtasks, setSubtasks] = useState<any[]>(value.subtasks || []);
+  const [subtasks, setSubtasks] = useState<EditableTask[]>(
+    value.subtasks || []
+  );
 
   const handleAddSubtask = () => {
-    setSubtasks([...subtasks, {}]);
+    setSubtasks([
+      ...subtasks,
+      {
+        title: "",
+        status: "TODO",
+        assignedToId: null,
+        skillIds: [],
+        subtasks: [],
+      },
+    ]);
   };
 
   const handleRemoveSubtask = (idx: number) => {
@@ -43,14 +53,14 @@ export default function TaskEditor({
     onChange({ ...task, subtasks: updated });
   };
 
-  const handleSubtaskChange = (idx: number, subtask: any) => {
+  const handleSubtaskChange = (idx: number, subtask: EditableTask) => {
     const updated = subtasks.slice();
     updated[idx] = subtask;
     setSubtasks(updated);
     onChange({ ...task, subtasks: updated });
   };
 
-  const update = (updates: any) => {
+  const update = (updates: Partial<EditableTask>) => {
     const newTask = { ...task, ...updates };
     setTask(newTask);
     onChange({ ...newTask, subtasks });

@@ -24,21 +24,20 @@ ${skillNames}
 Instructions:
 - Analyze what technical skills are needed for this task`;
 
-    // const ai = new GoogleGenAI({});
-    // const response = await ai.models.generateContent({
-    //   model: "gemini-2.5-flash",
-    //   contents: prompt,
-    //   config: {
-    //   responseMimeType: "text/x.enum",
-    //   responseSchema: {
-    //     type: Type.STRING,
-    //     enum: ["Frontend", "Backend", "Both"],
-    //   },
-    // },
-    // });
-    // const result = response.text?.trim().toLowerCase();
-    // console.log("Gemini API response:", result);
-    const result = "both"; // --- IGNORE ---
+    const ai = new GoogleGenAI({});
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+      responseMimeType: "text/x.enum",
+      responseSchema: {
+        type: Type.STRING,
+        enum: ["Frontend", "Backend", "Both"],
+      },
+    },
+    });
+    const result = response.text?.trim().toLowerCase();
+    console.log("Gemini API response:", result);
 
     if (result?.includes("both")) {
       console.log(

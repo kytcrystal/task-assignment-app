@@ -1,8 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { detectSkillsFromTitle } from "@/lib/llm";
+import { TaskStatus } from "@prisma/client";
 
-export async function GET() {
+type TaskPayload = {
+  title: string;
+  status?: TaskStatus;
+  assignedToId?: number | null;
+  skillIds?: number[];
+  subtasks?: TaskPayload[];
+  parentId?: number | null;
+};
+
+export async function GET(request: NextRequest) {
   try {
     const tasks = await prisma.task.findMany({
       include: {
@@ -21,7 +31,7 @@ export async function GET() {
 }
 
 async function createTaskRecursive(
-  data: any,
+  data: TaskPayload,
   skillIds: number[],
   parentId: number | null = null
 ) {
@@ -55,11 +65,11 @@ async function createTaskRecursive(
   return task;
 }
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { title, skillIds, parentId } = body;
-    
+    const body = await request.json();
+    const { title, skillIds } = body;
+
     let finalSkillIds = skillIds;
     if (!skillIds || skillIds.length === 0) {
       console.log(`No skills provided. Using LLM to detect for: "${title}"`);

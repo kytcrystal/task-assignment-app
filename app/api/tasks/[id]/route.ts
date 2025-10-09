@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import {
   canDeveloperDoTask,
   canMarkTaskAsDoneRecursive,
@@ -38,10 +38,11 @@ async function fetchTaskWithAllSubtasks(taskId: number) {
 }
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const taskId = Number(params.id);
     const task = await fetchTaskWithAllSubtasks(taskId);
     if (!task) {
@@ -58,11 +59,12 @@ export async function GET(
 }
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await req.json();
+    const params = await context.params;
+    const body = await request.json();
     const { status, assignedToId } = body;
     const taskId = Number(params.id);
 
@@ -144,10 +146,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const id = Number(params.id);
     await prisma.task.delete({ where: { id } });
     return NextResponse.json({ message: "Task deleted" }, { status: 200 });
