@@ -41,5 +41,16 @@ services:
         npm start
       "
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm test
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=postgresql://postgres:password@database:5432/taskdb
+    depends_on:
+      - database
+
 volumes:
   postgres_data:
