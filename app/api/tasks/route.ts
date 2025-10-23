@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function countTotalSubtasks(data: TaskPayload): number {
+  if (!data.subtasks || data.subtasks.length === 0) return 0;
+  return data.subtasks.length + data.subtasks.reduce((sum, subtask) => {
+    return sum + countTotalSubtasks(subtask);
+  }, 0);
+}
+
 async function createTaskRecursive(
   data: TaskPayload,
   skillIds: number[],
@@ -69,6 +76,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { title, skillIds } = body;
+
+    const totalSubtasks = countTotalSubtasks(body);
+    if (totalSubtasks > 10) {
+      return NextResponse.json(
+        { error: "A task can have a maximum of 10 total subtasks (including nested ones)." },
+        { status: 400 }
+      );
+    }
 
     let finalSkillIds = skillIds;
     if (!skillIds || skillIds.length === 0) {
