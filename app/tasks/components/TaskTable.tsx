@@ -18,6 +18,7 @@ export default function TaskTable({
 }: TaskTableProps) {
   const [tasks, setTasks] = useState(initialTasks);
   const [errorMsg, setErrorMsg] = useState("");
+  const [alertMsg, setAlertMsg] = useState("");
 
   const getEligibleDevelopers = (task: TaskWithRelations) => {
     const taskSkillIds = task.skills.map((ts) => ts.skill.id);
@@ -68,8 +69,48 @@ export default function TaskTable({
       setErrorMsg("Error assigning developer");
     }
   };
+
+  const deleteTask = async (taskId: number) => {
+    const taskToDelete = tasks.find((t) => t.id === taskId);
+    if (!taskToDelete) {
+      setErrorMsg("Task not found");
+      return;
+    }
+    const confirmDelete = confirm(`Are you sure you want to delete the task "${taskToDelete.title}"? This action cannot be undone.`);
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setTasks(tasks.filter((t) => t.id !== taskId));
+        setAlertMsg(`Task ${taskId} deleted successfully`);
+      } else {
+        const error = await res.json();
+        setErrorMsg(error.error || "Failed to delete task");
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      setErrorMsg("Error deleting task");
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
+      {alertMsg && (
+        <div role="alert" className="alert alert-success alert-soft mb-4">
+          <span>{alertMsg}</span>
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={() => setAlertMsg("")}
+          >
+            ✕
+          </button>
+        </div>
+      )}
       {errorMsg && (
         <div role="alert" className="alert alert-error alert-soft mb-4">
           <span>{errorMsg}</span>
@@ -90,6 +131,7 @@ export default function TaskTable({
             <th>Status</th>
             <th>Assignee</th>
             <th>Parent Task</th>
+            <th>Delete Task</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +149,7 @@ export default function TaskTable({
                 eligibleDevelopers={getEligibleDevelopers(task)}
                 onStatusChange={updateStatus}
                 onDeveloperAssign={assignDeveloper}
+                onDelete={deleteTask}
               />
             ))
           )}

@@ -6,12 +6,12 @@ import {
   DeveloperWithSkills,
 } from "@/app/types/prisma-helpers";
 
-
 type TaskRowProps = {
   task: TaskWithRelations;
   eligibleDevelopers: DeveloperWithSkills[];
   onStatusChange: (taskId: number, newStatus: string) => Promise<void>;
   onDeveloperAssign: (taskId: number, developerId: number) => Promise<void>;
+  onDelete: (taskId: number) => Promise<void>;
   indentLevel?: number;
 };
 
@@ -20,6 +20,7 @@ export default function TaskRow({
   eligibleDevelopers,
   onStatusChange,
   onDeveloperAssign,
+  onDelete,
 }: TaskRowProps) {
   return (
     <>
@@ -45,6 +46,11 @@ export default function TaskRow({
           />
         </td>
         <td>{task.parentId}</td>
+        <td>
+          <button className="btn" onClick={() => onDelete(task.id)}>
+            Delete
+          </button>
+        </td>
       </tr>
     </>
   );

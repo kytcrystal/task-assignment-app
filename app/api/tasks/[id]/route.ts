@@ -152,6 +152,18 @@ export async function DELETE(
   try {
     const params = await context.params;
     const id = Number(params.id);
+
+    const task = await prisma.task.findUnique({ where: { id } , include: { subtasks: true } });
+    if (!task) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+    if (task.subtasks && task.subtasks.length > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete task with existing subtasks" },
+        { status: 400 }
+      );
+    }
+
     await prisma.task.delete({ where: { id } });
     return NextResponse.json({ message: "Task deleted" }, { status: 200 });
   } catch (error) {
